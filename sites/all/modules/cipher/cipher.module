@@ -22,7 +22,7 @@ function cipher_form() {
     $form['number'] = array(
         '#title' => 'Number of Spaces',
         '#type' => 'textfield',
-        '#description' => t('Enter a number that corresponds to how many spaces you would like to shift.'),
+        '#description' => t('Enter a number between 1 and 26 to signal how many spaces you\'d like to shift.'),
         '#element_validate' => array('element_validate_integer_positive', 'element_validate_ascii'),
         '#required' => TRUE,
     );
@@ -30,7 +30,7 @@ function cipher_form() {
         '#title' => 'Direction',
         '#type' => 'textfield',
         '#description' => t('Type left or right, depending on which direction you want to shift.'),
-        // '#element_validate' => array('element_validate_left_right'),
+        // '#element_validate' => array('element_validate_left_right'), // Does not seem to work
         '#required' => TRUE,
     );
     $form['phrase'] = array(
@@ -46,7 +46,7 @@ function cipher_form() {
     return $form;
 }
 
-// function element_validate_left_right($element) {
+// function element_validate_left_right($element) { // Does not seem to work
 //     if ($element['#value'] != 'left' || $element['#value'] != 'right') {
 //         form_error($element, t('You must enter either left or right.'));
 //     }
@@ -67,7 +67,7 @@ function cipher_form_submit($form, &$form_state) {
     $ascii_input = array();
     $output = array();
 
-    for ($i = 0; $i < strlen($phrase); $i++) { // Turns input into an array of ASCII values
+    for ($i = 0; $i < strlen($phrase); $i++) { // Turns input of regular letters into an array of ASCII values
         array_push($ascii_phrase, ord($phrase[$i]));
     }
 
@@ -75,7 +75,7 @@ function cipher_form_submit($form, &$form_state) {
         switch($direction) {
             case 'left':
                 if ($letter - $number < 97) {
-                    $letter = 122 - $number;
+                    $letter = ($letter - $number) + 26;
                     array_push($ascii_input, $letter);
                 } else {
                   $letter -= $number;
@@ -84,7 +84,7 @@ function cipher_form_submit($form, &$form_state) {
             break;
             case 'right':
                 if ($letter + $number > 122) {
-                    $letter = $number + 96;
+                    $letter = ($letter + $number) - 26;
                     array_push($ascii_input, $letter);
                 } else {
                     $letter += $number;
@@ -94,7 +94,7 @@ function cipher_form_submit($form, &$form_state) {
         }
     }
 
-    foreach ($ascii_input as $letter) {
+    foreach ($ascii_input as $letter) { // Turns ASCII character array back into regular letters
         array_push($ascii_output, chr($letter));
     }
 
