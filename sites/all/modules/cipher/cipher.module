@@ -9,12 +9,12 @@ function cipher_menu() {
         'access callback' => TRUE,
         'type' => MENU_NORMAL_ITEM,
     );
-    // $items['cipher_success_page'] = array(
-    //     'title' => 'Your Output',
-    //     'page callback' => 'cipher_success',
-    //     'access callback' => TRUE,
-    //     'type' => MENU_CALLBACK,
-    // );
+    $items['cipher_success_page'] = array(
+        'title' => 'Your Output',
+        'page callback' => 'cipher_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
     return $items;
 }
 
@@ -30,7 +30,7 @@ function cipher_form() {
         '#title' => 'Direction',
         '#type' => 'textfield',
         '#description' => t('Type left or right, depending on which direction you want to shift.'),
-        '#element_validate' => array('element_validate_string', 'element_validate_left_right'),
+        '#element_validate' => array('element_validate_left_right'),
         '#required' => TRUE,
     );
     $form['phrase'] = array(
@@ -47,7 +47,26 @@ function cipher_form() {
 }
 
 function element_validate_left_right($element) {
-    if ($element['value'] != strtolower('left') || $element['value'] != strtolower('right')) {
+    if ($element['#value'] != 'left' || $element['#value'] != 'right') {
         form_error($element, t('You must enter either left or right.'));
     }
+}
+
+function cipher_form_submit($form, &$form_state) {
+    $number = $form_state['values']['number'];
+    $direction = $form_state['values']['direction'];
+    $phrase = $form_state['values']['phrase'];
+    $ascii_phrase;
+
+    for ($i = 0; $i < strlen($phrase); $i++) { // Turns input into ASCII values
+        $ascii_phrase .= ord($phrase[$i]);
+    }
+
+    $_SESSION['cipher_input'] = $phrase;
+    $_SESSION['cipher_output'] = $ascii_phrase;
+    $form_state['redirect'] = 'cipher_success_page';
+}
+
+function cipher_success() {
+    return '<h4>Your original phrase: ' . $_SESSION['cipher_input'] . '<br><br>' . 'Your coded phrase: ' . $_SESSION['cipher_output'] . '</h4>';
 }
