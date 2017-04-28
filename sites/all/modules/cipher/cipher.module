@@ -60,11 +60,11 @@ function element_validate_ascii($element) {
 
 function cipher_form_submit($form, &$form_state) {
     $number = $form_state['values']['number'];
-    $direction = $form_state['values']['direction'];
-    $phrase = $form_state['values']['phrase'];
+    $direction = strtolower($form_state['values']['direction']);
+    $phrase = strtolower($form_state['values']['phrase']);
     $ascii_phrase = array();
-    $ascii_output = array();
     $ascii_input = array();
+    $ascii_output = array();
     $output = array();
 
     for ($i = 0; $i < strlen($phrase); $i++) { // Turns input of regular letters into an array of ASCII values
