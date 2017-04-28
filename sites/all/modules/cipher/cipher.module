@@ -23,14 +23,14 @@ function cipher_form() {
         '#title' => 'Number of Spaces',
         '#type' => 'textfield',
         '#description' => t('Enter a number that corresponds to how many spaces you would like to shift.'),
-        '#element_validate' => array('element_validate_integer_positive'),
+        '#element_validate' => array('element_validate_integer_positive', 'element_validate_ascii'),
         '#required' => TRUE,
     );
     $form['direction'] = array(
         '#title' => 'Direction',
         '#type' => 'textfield',
         '#description' => t('Type left or right, depending on which direction you want to shift.'),
-        '#element_validate' => array('element_validate_left_right'),
+        // '#element_validate' => array('element_validate_left_right'),
         '#required' => TRUE,
     );
     $form['phrase'] = array(
@@ -46,9 +46,15 @@ function cipher_form() {
     return $form;
 }
 
-function element_validate_left_right($element) {
-    if ($element['#value'] != 'left' || $element['#value'] != 'right') {
-        form_error($element, t('You must enter either left or right.'));
+// function element_validate_left_right($element) {
+//     if ($element['#value'] != 'left' || $element['#value'] != 'right') {
+//         form_error($element, t('You must enter either left or right.'));
+//     }
+// }
+
+function element_validate_ascii($element) {
+    if ($element['#value'] > 26 || $element['#value'] < 1) {
+        form_error($element, t('Please enter a number between 1 and 26'));
     }
 }
 
@@ -56,14 +62,46 @@ function cipher_form_submit($form, &$form_state) {
     $number = $form_state['values']['number'];
     $direction = $form_state['values']['direction'];
     $phrase = $form_state['values']['phrase'];
-    $ascii_phrase;
+    $ascii_phrase = array();
+    $ascii_output = array();
+    $ascii_input = array();
+    $output = array();
 
-    for ($i = 0; $i < strlen($phrase); $i++) { // Turns input into ASCII values
-        $ascii_phrase .= ord($phrase[$i]);
+    for ($i = 0; $i < strlen($phrase); $i++) { // Turns input into an array of ASCII values
+        array_push($ascii_phrase, ord($phrase[$i]));
     }
 
+    foreach ($ascii_phrase as $letter) {
+        switch($direction) {
+            case 'left':
+                if ($letter - $number < 97) {
+                    $letter = 122 - $number;
+                    array_push($ascii_input, $letter);
+                } else {
+                  $letter -= $number;
+                  array_push($ascii_input, $letter);
+                }
+            break;
+            case 'right':
+                if ($letter + $number > 122) {
+                    $letter = $number + 96;
+                    array_push($ascii_input, $letter);
+                } else {
+                    $letter += $number;
+                    array_push($ascii_input, $letter);
+                }
+            break;
+        }
+    }
+
+    foreach ($ascii_input as $letter) {
+        array_push($ascii_output, chr($letter));
+    }
+
+    $output = join('', $ascii_output);
+
     $_SESSION['cipher_input'] = $phrase;
-    $_SESSION['cipher_output'] = $ascii_phrase;
+    $_SESSION['cipher_output'] = $output;
     $form_state['redirect'] = 'cipher_success_page';
 }
 
