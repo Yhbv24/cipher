@@ -1,0 +1,5 @@
+name = Cipher
+description = Turns a phrase into a coded phrase.
+package = Cipher
+core  7.x
+files[] = cipher.module
