@@ -1,6 +1,7 @@
 <?php
 
 function cipher_menu() {
+    $items = array();
     $items['cipher'] = array(
         'title' => 'Cipher',
         'page callback' => 'drupal_get_form',
@@ -8,11 +9,45 @@ function cipher_menu() {
         'access callback' => TRUE,
         'type' => MENU_NORMAL_ITEM,
     );
-    $items['cipher_success_page'] = array(
-        'title' => 'Your Output',
-        'page callback' => 'cipher_success',
-        'access callback' => TRUE,
-        'type' => MENU_CALLBACK,
-    );
+    // $items['cipher_success_page'] = array(
+    //     'title' => 'Your Output',
+    //     'page callback' => 'cipher_success',
+    //     'access callback' => TRUE,
+    //     'type' => MENU_CALLBACK,
+    // );
     return $items;
+}
+
+function cipher_form() {
+    $form['number'] = array(
+        '#title' => 'Number of Spaces',
+        '#type' => 'textfield',
+        '#description' => t('Enter a number that corresponds to how many spaces you would like to shift.'),
+        '#element_validate' => array('element_validate_integer_positive'),
+        '#required' => TRUE,
+    );
+    $form['direction'] = array(
+        '#title' => 'Direction',
+        '#type' => 'textfield',
+        '#description' => t('Type left or right, depending on which direction you want to shift.'),
+        '#element_validate' => array('element_validate_string', 'element_validate_left_right'),
+        '#required' => TRUE,
+    );
+    $form['phrase'] = array(
+        '#title' => 'Your Phrase',
+        '#type' => 'textfield',
+        '#description' => t('Enter the phrase you would like here.'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Cipher',
+    );
+    return $form;
+}
+
+function element_validate_left_right($element) {
+    if ($element['value'] != strtolower('left') || $element['value'] != strtolower('right')) {
+        form_error($element, t('You must enter either left or right.'));
+    }
 }
