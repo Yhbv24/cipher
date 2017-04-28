@@ -68,7 +68,7 @@ function cipher_form_submit($form, &$form_state) {
     $output = array();
 
     for ($i = 0; $i < strlen($phrase); $i++) { // Turns input of regular letters into an array of ASCII values
-        if (ord($phrase[$i]) < 58 && ord($phrase[$i]) > 32) {
+        if (ord($phrase[$i]) <= 64 && ord($phrase[$i]) >= 32) {
             array_push($ascii_phrase, $phrase[$i]);
         } else {
             array_push($ascii_phrase, ord($phrase[$i]));
@@ -78,7 +78,7 @@ function cipher_form_submit($form, &$form_state) {
     foreach ($ascii_phrase as $letter) {
         switch($direction) {
             case 'left':
-                if (ctype_punct($letter)) {
+                if (ctype_punct($letter) || ord($letter) === 32 || ord($letter) === 63) {
                     array_push($ascii_input, $letter);
                 } elseif ($letter - $number < 97) {
                     $letter = ($letter - $number) + 26;
@@ -89,7 +89,7 @@ function cipher_form_submit($form, &$form_state) {
                 }
             break;
             case 'right':
-                if (ctype_punct($letter)) {
+                if (ctype_punct($letter) || ord($letter) === 32 || ord($letter) === 63) {
                     array_push($ascii_input, $letter);
                 } elseif ($letter + $number > 122) {
                     $letter = ($letter + $number) - 26;
@@ -103,7 +103,7 @@ function cipher_form_submit($form, &$form_state) {
     }
 
     foreach ($ascii_input as $letter) { // Turns ASCII character array back into regular letters
-        if (ctype_punct($letter)) {
+        if (ctype_punct($letter) || ord($letter) === 32 || ord($letter) === 63) {
             array_push($ascii_output, $letter);
         } else {
             array_push($ascii_output, chr($letter));
